@@ -1,8 +1,6 @@
 import Jetson.GPIO as GPIO
 import time
 
-car_dir = 0  # f = 1, b = 2, fr = 3, fl = 4, br = 5, bl = 6
-
 # GPIO pins
 motor_pin_1 = 12
 motor_pin_2 = 32
@@ -12,12 +10,12 @@ enable_pin = 33
 motor_pin_1_state = 0
 motor_pin_2_state = 0
 enable_pin_pwm_val = 0
+enable_pin_pwm = None
 
 def forward(speed):
   print("Going forward")
   global motor_pin_1_state
   global motor_pin_2_state
-  global enable_pin_state
   global enable_pin_pwm_val
 
   motor_pin_1_state = 1
@@ -28,7 +26,6 @@ def backward(speed):
   print("Going backward at warp " + str(speed))
   global motor_pin_1_state
   global motor_pin_2_state
-  global enable_pin_state
   global enable_pin_pwm_val
 
   motor_pin_1_state = 0
@@ -41,30 +38,52 @@ def forward_right(speed):
 
 
 def forward_left(speed):
-  print("Going forward left at warp " + speed)
+  print("Going forward left at warp " + str(speed))
 
 
 def backward_right(speed):
-  print("Going backward warp " + speed)
+  print("Going backward warp " + str(speed))
 
 
 def backward_left(speed):
-  print("Going backward warp " + speed)
+  print("Going backward warp " + str(speed))
 
+# Set GPIO pin's actual states based off of specified states via variables
+def setGPIO():
+  global GPIO
+  global enable_pin_pwm
 
-def main():
-  global motor_pin_1_state
-  global motor_pin_2_state
+  GPIO.output(motor_pin_1, motor_pin_1_state)
+  GPIO.output(motor_pin_2, motor_pin_2_state)
+  enable_pin_pwm.ChangeDutyCycle(enable_pin_pwm_val)
+
+# Initial GPIO setup
+def setupGPIO():
+  global GPIO
   global enable_pin_pwm_val
+  global enable_pin_pwm
 
-  # Setup
   GPIO.setmode(GPIO.BOARD)
   GPIO.setup(motor_pin_1, GPIO.OUT)
   GPIO.setup(motor_pin_2, GPIO.OUT)
   GPIO.setup(enable_pin, GPIO.OUT, initial=GPIO.HIGH)
+
   enable_pin_pwm = GPIO.PWM(enable_pin, 50)
   enable_pin_pwm.start(0)
 
+# Reset variables that represent state of pins to default values
+def resetStates():
+  global motor_pin_1_state
+  global motor_pin_2_state
+  global enable_pin_pwm_val
+
+  motor_pin_1_state = 0
+  motor_pin2_state = 0
+  enable_pin_pwm_val = 0
+
+def main():
+  # Setup
+  setupGPIO()
 
   # Loop
   while True:
@@ -96,19 +115,14 @@ def main():
 
     print(enable_pin_pwm_val)
     # Execute current loop's command based on var states
-    GPIO.output(motor_pin_1, motor_pin_1_state)
-    GPIO.output(motor_pin_2, motor_pin_2_state)
-    enable_pin_pwm.ChangeDutyCycle(enable_pin_pwm_val)
+    setGPIO()
+
+    # Wait specified time
     time.sleep(t)
 
     # Reset vars and GPIO states
-    motor_pin_1_state = 0
-    motor_pin2_state = 0
-    enable_pin_state = 0
-    enable_pin_pwm_val = 0
-    GPIO.output(motor_pin_1, 0)
-    GPIO.output(motor_pin_2, 0)
-    enable_pin_pwm.ChangeDutyCycle(enable_pin_pwm_val)
+    resetStates()
+    setGPIO()
 
 
 main()
