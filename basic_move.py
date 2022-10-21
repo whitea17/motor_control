@@ -6,48 +6,126 @@ motor_pin_1 = 12
 motor_pin_2 = 32
 enable_pin = 33
 
+servo_pin_1 = 40
+servo_pin_2 = 38
+
+
 #GPIO states
 motor_pin_1_state = 0
 motor_pin_2_state = 0
 enable_pin_pwm_val = 0
 enable_pin_pwm = None
 
+servo_pin_1_state = 0
+servo_pin_2_state = 0
+
 def forward(speed):
   print("Going forward")
   global motor_pin_1_state
   global motor_pin_2_state
+
+  global servo_pin_1_state
+  global servo_pin_2_state
+
   global enable_pin_pwm_val
 
   motor_pin_1_state = 1
   motor_pin_2_state = 0
+
+  servo_pin_1_state = 0
+  servo_pin_2_state = 0
+
   enable_pin_pwm_val = speed
 
 def backward(speed):
   print("Going backward at warp " + str(speed))
   global motor_pin_1_state
   global motor_pin_2_state
+
+  global servo_pin_1_state
+  global servo_pin_2_state
+
   global enable_pin_pwm_val
 
   motor_pin_1_state = 0
   motor_pin_2_state = 1
-  enable_pin_pwm_val = speed
 
+  servo_pin_1_state = 0
+  servo_pin_2_state = 0
+
+  enable_pin_pwm_val = speed
 
 def forward_right(speed):
   print("Going forward right at warp " + str(speed))
+  global motor_pin_1_state
+  global motor_pin_2_state
 
+  global servo_pin_1_state
+  global servo_pin_2_state
+
+  global enable_pin_pwm_val
+
+  motor_pin_1_state = 1
+  motor_pin_2_state = 0
+
+  servo_pin_1_state = 0
+  servo_pin_2_state = 1
+
+  enable_pin_pwm_val = speed
 
 def forward_left(speed):
   print("Going forward left at warp " + str(speed))
+  global motor_pin_1_state
+  global motor_pin_2_state
 
+  global servo_pin_1_state
+  global servo_pin_2_state
+
+  global enable_pin_pwm_val
+
+  motor_pin_1_state = 1
+  motor_pin_2_state = 0
+
+  servo_pin_1_state = 1
+  servo_pin_2_state = 0
+
+  enable_pin_pwm_val = speed
 
 def backward_right(speed):
   print("Going backward warp " + str(speed))
+  global motor_pin_1_state
+  global motor_pin_2_state
 
+  global servo_pin_1_state
+  global servo_pin_2_state
+
+  global enable_pin_pwm_val
+
+  motor_pin_1_state = 0
+  motor_pin_2_state = 1
+
+  servo_pin_1_state = 0
+  servo_pin_2_state = 1
+
+  enable_pin_pwm_val = speed
 
 def backward_left(speed):
   print("Going backward warp " + str(speed))
+  global motor_pin_1_state
+  global motor_pin_2_state
 
+  global servo_pin_1_state
+  global servo_pin_2_state
+
+  global enable_pin_pwm_val
+
+  motor_pin_1_state = 0
+  motor_pin_2_state = 1
+
+  servo_pin_1_state = 1
+  servo_pin_2_state = 0
+
+  enable_pin_pwm_val = speed
 # Set GPIO pin's actual states based off of specified states via variables
 def setGPIO():
   global GPIO
@@ -55,6 +133,10 @@ def setGPIO():
 
   GPIO.output(motor_pin_1, motor_pin_1_state)
   GPIO.output(motor_pin_2, motor_pin_2_state)
+
+  GPIO.output(servo_pin_1, servo_pin_1_state)
+  GPIO.output(servo_pin_2, servo_pin_2_state)
+
   enable_pin_pwm.ChangeDutyCycle(enable_pin_pwm_val)
 
 # Initial GPIO setup
@@ -64,8 +146,12 @@ def setupGPIO():
   global enable_pin_pwm
 
   GPIO.setmode(GPIO.BOARD)
-  GPIO.setup(motor_pin_1, GPIO.OUT)
-  GPIO.setup(motor_pin_2, GPIO.OUT)
+  GPIO.setup(motor_pin_1, GPIO.OUT, initial=GPIO.LOW)
+  GPIO.setup(motor_pin_2, GPIO.OUT, initial=GPIO.LOW)
+
+  GPIO.setup(servo_pin_1, GPIO.OUT, initial=GPIO.LOW)
+  GPIO.setup(servo_pin_2, GPIO.OUT, initial=GPIO.LOW)
+
   GPIO.setup(enable_pin, GPIO.OUT, initial=GPIO.HIGH)
 
   enable_pin_pwm = GPIO.PWM(enable_pin, 50)
@@ -75,10 +161,18 @@ def setupGPIO():
 def resetStates():
   global motor_pin_1_state
   global motor_pin_2_state
+
+  global servo_pin_1_state
+  global servo_pin_2_state
+
   global enable_pin_pwm_val
 
   motor_pin_1_state = 0
   motor_pin2_state = 0
+
+  servo_pin_1_state = 0
+  servo_pin_2_state = 0
+
   enable_pin_pwm_val = 0
 
 def main():
